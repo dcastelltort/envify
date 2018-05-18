@@ -30,7 +30,6 @@ main!(|args: Cli, log_level: verbosity| {
     let prefix = "";
     iter(&mut acc, prefix, &json_file);
     println!("{:#?}", acc);
-    //println!("{:#?}", v);
 });
 
 fn iter<'a>(acc: &'a mut Vec<String>, current_prefix: &str, json: &Value) -> &'a mut Vec<String> {
@@ -45,13 +44,26 @@ fn iter<'a>(acc: &'a mut Vec<String>, current_prefix: &str, json: &Value) -> &'a
                         val,
                     );
                 } else {
-                    acc.push(format!(
-                        "export {}{}{}={}",
-                        current_prefix.to_uppercase(),
-                        separator,
-                        key.to_uppercase(),
-                        val
-                    ));
+                    let target_salt = 1;
+
+                    let new_decl = if target_salt == 0 {
+                        format!(
+                            "export {}{}{}={}",
+                            current_prefix.to_uppercase(),
+                            separator,
+                            key.to_uppercase(),
+                            val
+                        )
+                    } else {
+                        format!(
+                            "salt '*' environ.setval {}{}{} {}",
+                            current_prefix.to_uppercase(),
+                            separator,
+                            key.to_uppercase(),
+                            val
+                        )
+                    };
+                    acc.push(new_decl);
                 }
             });
             return acc;

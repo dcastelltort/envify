@@ -1,0 +1,10 @@
+{
+    "root" : {
+        "sub1" : 0,
+        "sub2" : "this is a test"
+    },
+    "rootkey" : "value",
+    "dabool" : 1,
+    "danum" : 1000,
+    "dafloat" : 1.0
+}

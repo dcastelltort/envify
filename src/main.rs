@@ -26,20 +26,20 @@ main!(|args: Cli, log_level: verbosity| {
     // Parse the string of data into serde_json::Value.
     let json_file: Value = serde_json::from_str(&content)?;
 
-    let mut acc = vec![];
+    let mut decls = vec![];
     let prefix = "";
-    iter(&mut acc, prefix, &json_file);
-    println!("{:#?}", acc);
+    generate_decls(&mut decls, prefix, &json_file);
+    println!("{:#?}", decls);
 });
 
-fn iter<'a>(acc: &'a mut Vec<String>, current_prefix: &str, json: &Value) -> &'a mut Vec<String> {
+fn generate_decls<'a>(declarations: &'a mut Vec<String>, current_prefix: &str, json: &Value) -> &'a mut Vec<String> {
     match json.as_object() {
         Some(m) => {
             m.iter().for_each(|(key, val)| {
                 let separator = if current_prefix.is_empty() { "" } else { "_" };
                 if val.is_object() {
-                    iter(
-                        acc,
+                    generate_decls(
+                        declarations,
                         format!("{}{}{}", current_prefix, separator, key).as_str(),
                         val,
                     );
@@ -63,13 +63,13 @@ fn iter<'a>(acc: &'a mut Vec<String>, current_prefix: &str, json: &Value) -> &'a
                             val
                         )
                     };
-                    acc.push(new_decl);
+                    declarations.push(new_decl);
                 }
             });
-            return acc;
+            return declarations;
         }
         None => {
-            return acc;
+            return declarations;
         }
     }
 }

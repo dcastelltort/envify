@@ -29,13 +29,18 @@ main!(|args: Cli, log_level: verbosity| {
 
     let mut decls = vec![];
     let prefix = "";
-    let target : u32 = if args.salt { 1 } else { 0 }; // change to enum
+    let target: u32 = if args.salt { 1 } else { 0 }; // change to enum
 
     generate_decls(&mut decls, prefix, &json_file, target);
     println!("{:#?}", decls);
 });
 
-fn generate_decls<'a>(declarations: &'a mut Vec<String>, current_prefix: &str, json: &Value, target: u32) -> &'a mut Vec<String> {
+fn generate_decls<'a>(
+    declarations: &'a mut Vec<String>,
+    current_prefix: &str,
+    json: &Value,
+    target: u32,
+) -> &'a mut Vec<String> {
     match json.as_object() {
         Some(m) => {
             m.iter().for_each(|(key, val)| {
@@ -45,10 +50,9 @@ fn generate_decls<'a>(declarations: &'a mut Vec<String>, current_prefix: &str, j
                         declarations,
                         format!("{}{}{}", current_prefix, separator, key).as_str(),
                         val,
-                        target
+                        target,
                     );
                 } else {
-
                     let new_decl = if target == 0 {
                         format!(
                             "export {}{}{}={}",

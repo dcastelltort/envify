@@ -8,13 +8,14 @@ use quicli::prelude::*;
 
 #[derive(Debug, StructOpt)]
 struct Cli {
-    // Add a CLI argument `--count`/-n` that defaults to 3, and has this help text:
-    /// How many lines to get
-    //#[structopt(long = "count", short = "n", default_value = "3")]
-    //count: usize,
-    // Add a positional argument that the user has to supply:
     /// The file to read
     file: String,
+    #[structopt(short = "b", long = "bash", help = "Generate bash script (default)")]
+    /// generate bash
+    bash: bool,
+    #[structopt(short = "s", long = "salt", help = "Generate salt script")]
+    /// generate salt
+    salt: bool,
     /// Pass many times for more log output
     #[structopt(long = "verbose", short = "v", parse(from_occurrences))]
     verbosity: u8,
@@ -28,11 +29,13 @@ main!(|args: Cli, log_level: verbosity| {
 
     let mut decls = vec![];
     let prefix = "";
-    generate_decls(&mut decls, prefix, &json_file);
+    let target : u32 = if args.salt { 1 } else { 0 }; // change to enum
+
+    generate_decls(&mut decls, prefix, &json_file, target);
     println!("{:#?}", decls);
 });
 
-fn generate_decls<'a>(declarations: &'a mut Vec<String>, current_prefix: &str, json: &Value) -> &'a mut Vec<String> {
+fn generate_decls<'a>(declarations: &'a mut Vec<String>, current_prefix: &str, json: &Value, target: u32) -> &'a mut Vec<String> {
     match json.as_object() {
         Some(m) => {
             m.iter().for_each(|(key, val)| {
@@ -42,11 +45,11 @@ fn generate_decls<'a>(declarations: &'a mut Vec<String>, current_prefix: &str, j
                         declarations,
                         format!("{}{}{}", current_prefix, separator, key).as_str(),
                         val,
+                        target
                     );
                 } else {
-                    let target_salt = 1;
 
-                    let new_decl = if target_salt == 0 {
+                    let new_decl = if target == 0 {
                         format!(
                             "export {}{}{}={}",
                             current_prefix.to_uppercase(),

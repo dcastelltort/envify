@@ -11,24 +11,28 @@ This way you maintain json file, but use the tool to generate the correct file f
 ## Help
 ```
 USAGE:
-    envify [FLAGS] <file>
+    envify [FLAGS] [OPTIONS] <file> <SUBCOMMAND>
 
 FLAGS:
-    -b, --bash       Generate bash script (default)
     -h, --help       Prints help information
-    -s, --salt       Generate salt script
     -V, --version    Prints version information
     -v, --verbose    Pass many times for more log output
 
+OPTIONS:
+    -o, --output <output_file>    name of the file with extension, otherwise it uses input with appropriate extension
+
 ARGS:
     <file>    The file to read
+
+SUBCOMMANDS:
+    help     Prints this message or the help of the given subcommand(s)
+    salt     generate a salt file
+    shell    generate a shell file
 ````
 
 ## TODO:
 * support uppercase output format enum flag on the cli (bash, salt, more ?)
 * support prefix flag on the cli
-* generate the file
-* support output file name
 * what to do with arrays ?
 
 ## Examples
@@ -48,20 +52,21 @@ This json
 ```
 gives this shell:
 ```
-    "export DABOOL=1",
-    "export DAFLOAT=1.0",
-    "export DANUM=1000",
-    "export ROOT_SUB1=0",
-    "export ROOT_SUB2=\"this is a test\"",
-    "export ROOTKEY=\"value\""
+#!/bin/sh
+export DABOOL=1
+export DAFLOAT=1.0
+export DANUM=1000
+export ROOT_SUB1=0
+export ROOT_SUB2="this is a test"
+export ROOTKEY="value"
 ```
 
 or this salt:
 ```
-"salt \'*\' environ.setval DABOOL 1",
-    "salt \'*\' environ.setval DAFLOAT 1.0",
-    "salt \'*\' environ.setval DANUM 1000",
-    "salt \'*\' environ.setval ROOT_SUB1 0",
-    "salt \'*\' environ.setval ROOT_SUB2 \"this is a test\"",
-    "salt \'*\' environ.setval ROOTKEY \"value\""
+salt '*' environ.setval DABOOL 1
+salt '*' environ.setval DAFLOAT 1.0
+salt '*' environ.setval DANUM 1000
+salt '*' environ.setval ROOT_SUB1 0
+salt '*' environ.setval ROOT_SUB2 "this is a test"
+salt '*' environ.setval ROOTKEY "value"
 ```

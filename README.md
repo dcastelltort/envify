@@ -1,12 +1,10 @@
 # Envify
 
-(THIS IS STILL WIP AND UNDER HEAVY DEV)
+Usually you want your app to rely on environment variables for configuration, and not rely on config files that need to be deployed specifically to your environment (development, staging, release), etc. Thus, depending on your environment, you might end up with different ways to create those env vars while you develop, or you deploy in production.
 
-Usually you want you app to rely on environment variable for configuration, and not rely on config files that need to be deployed specifically to your environment (development, staging, release), etc. Thus you end up with different ways to create those env var while you develop , or you deploy in production.
+The tool generates a shell file to declare environment variable or a salt file from a json file 
 
-The tool generates a sh file to declare environment variable or a salt file from a json file 
-
-This way you maintain json file, but use the tool to generate the correct file for your need to declare those env var.
+That way, you maintain only a json file, but use the tool to generate the appropriate file for your need to declare those env var.
 
 ## Help
 ```
@@ -14,12 +12,14 @@ USAGE:
     envify [FLAGS] [OPTIONS] <file> <SUBCOMMAND>
 
 FLAGS:
-    -h, --help       Prints help information
-    -V, --version    Prints version information
-    -v, --verbose    Pass many times for more log output
+    -h, --help         Prints help information
+    -u, --uppercase    uppercase the keys found in the json input
+    -V, --version      Prints version information
+    -v, --verbose      Pass many times for more log output
 
 OPTIONS:
     -o, --output <output_file>    name of the file with extension, otherwise it uses input with appropriate extension
+    -p, --prefix <prefix>         prefix variable name using the one provided
 
 ARGS:
     <file>    The file to read
@@ -31,7 +31,6 @@ SUBCOMMANDS:
 ````
 
 ## TODO:
-* support prefix flag on the cli
 * what to do with arrays ?
 
 ## Examples
@@ -49,18 +48,18 @@ This json
     "dafloat" : 1.0
 }
 ```
-gives this shell:
+'envify examples/test.json -p tag -u shell' gives this shell:
 ```
 #!/bin/sh
-export DABOOL=1
-export DAFLOAT=1.0
-export DANUM=1000
-export ROOT_SUB1=0
-export ROOT_SUB2="this is a test"
-export ROOTKEY="value"
+export TAG_DABOOL=1
+export TAG_DAFLOAT=1.0
+export TAG_DANUM=1000
+export TAG_ROOT_SUB1=0
+export TAG_ROOT_SUB2="this is a test"
+export TAG_ROOTKEY="value"
 ```
+'envify examples/test.json salt' generates this salt
 
-or this salt:
 ```
 salt '*' environ.setval DABOOL 1
 salt '*' environ.setval DAFLOAT 1.0

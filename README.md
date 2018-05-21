@@ -31,7 +31,6 @@ SUBCOMMANDS:
 ````
 
 ## TODO:
-* support uppercase output format enum flag on the cli (bash, salt, more ?)
 * support prefix flag on the cli
 * what to do with arrays ?
 

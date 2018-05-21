@@ -23,6 +23,9 @@ enum Target {
 
 #[derive(Debug, StructOpt)]
 struct Cli {
+    /// Specify target
+    #[structopt(subcommand)]
+    target: Target,
     /// The file to read
     file: String,
     /// Output file name
@@ -31,13 +34,13 @@ struct Cli {
     /// Uppercase
     #[structopt(short = "u", long = "uppercase", help = "uppercase the keys found in the json input")]
     uppercase: bool,
-
+    /// Prefix
+    #[structopt(short = "p", long = "prefix", help = "prefix variable name using the one provided")]
+    prefix: Option<String>,
     /// Pass many times for more log output
     #[structopt(long = "verbose", short = "v", parse(from_occurrences))]
     verbosity: u8,
-    /// Pass many times for more log output
-    #[structopt(subcommand)]
-    target: Target,
+    
 }
 
 main!(|args: Cli, log_level: verbosity| {
@@ -47,9 +50,9 @@ main!(|args: Cli, log_level: verbosity| {
     let json_file: Value = serde_json::from_str(&content)?;
 
     let mut decls = vec![];
-    let prefix = "";
+    let prefix = args.prefix.unwrap_or("".to_string());
 
-    generate_decls(&mut decls, prefix, &json_file, &args.target, args.uppercase);
+    generate_decls(&mut decls, &prefix, &json_file, &args.target, args.uppercase);
 
     let file_name = build_file_name(&args.file, &args.output_file, &args.target);
 
@@ -97,7 +100,7 @@ fn build_file_name(
 
 fn generate_decls<'a>(
     declarations: &'a mut Vec<String>,
-    current_prefix: &str,
+    current_prefix: &String,
     json: &Value,
     target: &Target,
     uppercase: bool
@@ -109,7 +112,7 @@ fn generate_decls<'a>(
                 if val.is_object() {
                     generate_decls(
                         declarations,
-                        format!("{}{}{}", current_prefix, separator, key).as_str(),
+                        &format!("{}{}{}", current_prefix, separator, key),
                         val,
                         target,
                         uppercase

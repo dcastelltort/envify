@@ -28,6 +28,10 @@ struct Cli {
     /// Output file name
     #[structopt(short = "o", long = "output", help = "name of the file with extension, otherwise it uses input with appropriate extension")]
     output_file: Option<String>,
+    /// Uppercase
+    #[structopt(short = "u", long = "uppercase", help = "uppercase the keys found in the json input")]
+    uppercase: bool,
+
     /// Pass many times for more log output
     #[structopt(long = "verbose", short = "v", parse(from_occurrences))]
     verbosity: u8,
@@ -45,7 +49,7 @@ main!(|args: Cli, log_level: verbosity| {
     let mut decls = vec![];
     let prefix = "";
 
-    generate_decls(&mut decls, prefix, &json_file, &args.target);
+    generate_decls(&mut decls, prefix, &json_file, &args.target, args.uppercase);
 
     let file_name = build_file_name(&args.file, &args.output_file, &args.target);
 
@@ -96,6 +100,7 @@ fn generate_decls<'a>(
     current_prefix: &str,
     json: &Value,
     target: &Target,
+    uppercase: bool
 ) -> &'a mut Vec<String> {
     match json.as_object() {
         Some(m) => {
@@ -107,21 +112,24 @@ fn generate_decls<'a>(
                         format!("{}{}{}", current_prefix, separator, key).as_str(),
                         val,
                         target,
+                        uppercase
                     );
                 } else {
+                    let pref = if uppercase { current_prefix.to_uppercase() } else {current_prefix.to_string()};
+                    let k = if uppercase { key.to_uppercase()} else { key.to_string() };
                     let new_decl = match target {
                         &Target::Shell => format!(
                             "export {}{}{}={}",
-                            current_prefix.to_uppercase(),
+                            pref,
                             separator,
-                            key.to_uppercase(),
+                            k,
                             val
                         ),
                         &Target::Salt => format!(
                             "salt '*' environ.setval {}{}{} {}",
-                            current_prefix.to_uppercase(),
+                            pref,
                             separator,
-                            key.to_uppercase(),
+                            k,
                             val
                         ),
                     };
